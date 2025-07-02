@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace adapter.Model.DTO
+{
+    public class MentorApprisalQuestionBankDTO
+    {
+        public string MENTOR_QUESTION_ID { get; set; }
+        public string MENTOR_MAIN_TOPIC_ID { get; set; }
+        public string MENTOR_SUP_TOPIC_ID { get; set; }
+        public string QUESTION_TEXT { get; set; }
+        public string MAX_MARK { get; set; }
+        public string IS_TEXT_AREA { get; set; }
+        public string ACADEMIC_YEAR { get; set; }
+        public string IS_ACTIVE { get; set; }
+    }
+}

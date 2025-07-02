@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace adapter.Model.classmodel
+{
+    public class MentorAppraisalQuestionMapping
+    {
+        public string MENTOR_QUESTION_SETTING_MAPPING_ID { get; set; }
+        public string MENTOR_QUESTION_ID { get; set; }
+        public string QUESTION_TEXT { get; set; }
+        public string MENTOR_MAIN_TOPIC_ID { get; set; }
+        public string TOPIC_NAME { get; set; }
+        public string MENTOR_SUP_TOPIC_ID { get; set; }
+        public string SUP_TOPIC_NAME { get; set; }
+        public string MARK { get; set; }
+        public string APPRISAL_SETTING_ID { get; set; }
+        public string SETTING_NAME { get; set; }
+        public string SEMESTER_TYPE_ID { get; set; }
+        public string SEMESTER_TYPE { get; set; }
+        public string ACADEMIC_YEAR { get; set; }
+        public string CAMPUS_ID { get; set; }
+        public string IS_ACTIVE { get; set; }
+        public string IS_DELETED { get; set; }
+    }
+}

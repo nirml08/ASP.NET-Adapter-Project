@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace adapter.Model.classmodel
+{
+    public class MentorApprisalSetting
+    {
+        public string APPRISAL_SETTING_ID { get; set; }
+        public string SETTING_NAME { get; set; }
+        public string SEMESTER_TYPE_ID { get; set; }
+        public string SEMESTER_TYPE { get; set; }
+        public string START_DATE { get; set; }
+        public string END_DATE { get; set; }
+        public string LAST_DATE { get; set; }
+        public string IS_PUBLISHED { get; set; }
+        public string ACADEMIC_YEAR { get; set; }
+        public string CAMPUS_ID { get; set; }
+        public string IS_ACTIVE { get; set; }
+        public string IS_DELETED { get; set; }
+        public string STATUS { get; set; }
+    }
+}
