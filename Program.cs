@@ -21,10 +21,6 @@ builder.Services.AddScoped<socketservice>();
 builder.Services.AddScoped<StudentInsertService>();
 
 
-//builder.Services.AddDbContext<r1db>(options =>options.UseMySql(
-//builder.Configuration.GetConnectionString("DefaultConnection"),
-//  new MySqlServerVersion(new Version(8, 0, 36)) // Use your actual MySQL version
-//));
 
 builder.Services.AddHttpClient<Apical>();
 
