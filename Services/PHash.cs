@@ -21,6 +21,24 @@ public static class PHash
             return hex.ToString();
         }
     }
+    public static string pwdhash2(string input)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            // Convert input string to byte array
+            byte[] bytes = Encoding.UTF8.GetBytes(input);
+
+            // Compute hash
+            byte[] hashBytes = sha256.ComputeHash(bytes);
+
+            // Convert byte array to hex string
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+                sb.Append(b.ToString("x2"));
+
+            return sb.ToString();
+        }
+    }
 
     /*using System.Security.Cryptography;
 using System.Text;

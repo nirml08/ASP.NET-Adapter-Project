@@ -46,8 +46,19 @@ namespace adapter.Controllers
         [HttpGet("applications/{id}")]
         public async Task<ActionResult<Application>> GetApplicationById(string id)
         {
-            var app = await _apical.GetApplicationByIdAsync(id);
-            return (app == null) ? NotFound() : Ok(app);
+             try
+            {
+                var applications = await _apical.GetAllApplicationsAsync();
+                return Ok(); 
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the error
+                Console.WriteLine($"Error in GetAllApplications: {ex.Message}");
+
+                // Return 500 Internal Server Error
+                return StatusCode(500, "An error occurred while retrieving applications.");
+            }
         }
         */
     }

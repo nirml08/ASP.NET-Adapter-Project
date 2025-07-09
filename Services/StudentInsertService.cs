@@ -1,5 +1,5 @@
 ﻿using adapter.Model.apicaldata;
-using adapter.Model.classmodel;
+
 
 //using adapter.Model.classmodel;
 using adapter.Repo;
@@ -100,7 +100,9 @@ namespace adapter.Services
                 REGISTER_NO = null,
                 PLACE_OF_BIRTH = "INDIA",
                 LAST_STUDIED_PLACE = last_inst,
-                IS_ROMAN_CATHOLIC = 0
+                IS_ROMAN_CATHOLIC = 0,
+                COLLEGE_ROLL_NO="NA0001",
+                UNIVERSITY_REGISTER_NO="UNI001"
             };
             try
             {
@@ -152,7 +154,7 @@ namespace adapter.Services
             var uac = new AUserAccount
             {
                 Username = entry?.email?.Trim() ?? entry.application_id,
-                Password = PHash.CreateSHA256("123456"),//pwdhash("123456"),
+                Password = PHash.pwdhash2("123456"),//CreateSHA256("123456"),//pwdhash("123456"),
                 Name = entry.name.Trim() ?? entry.application_id.ToString(),
                 LastLogin = null,
                 UserId = entry.recieve_id,
@@ -171,7 +173,32 @@ namespace adapter.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"InsertLogin failed for {entry.fname}: {ex.Message}");
+                Console.WriteLine($"InsertLogin failed for {entry.name}: {ex.Message}");
+
+            }
+
+
+        }
+        public async Task InsertUserRoleService(ApplicationInfo entry)
+        {
+            var usr = new AUserRole
+            {
+                User_Id=entry.recieve_id,
+                Role_Id=17,
+                User_Type=17,
+                Academic_Year=2025,
+                Campus_Id= entry.registration?.campus ?? 2,
+                Is_Active=1,
+                Is_Deleted=0
+            };
+
+            try
+            {
+                await _repository.InsertUserRole(usr); // actual DB insert
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"InsertRole failed for {entry.name}: {ex.Message}");
 
             }
 
@@ -812,7 +839,7 @@ namespace adapter.Services
                 REASON = null,
                 FEE_STRUCTURE_ID = fstid
             };
-            //if (entry.payment_gateway_status?.ToLower() == "success")
+            //if ( entry.payment_info is null ? (entry.payment_gateway_status is null?"":entry.payment_gateway_status) : entry.payment_info.status.ToLower())
             if (entry.payment_info != null && entry.payment_info.status.ToLower() == "success")
             {
                 await _repository.InsertFeeStudentAccountDebitAsync(debit_account);
