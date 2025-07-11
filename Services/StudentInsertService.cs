@@ -395,7 +395,16 @@ namespace adapter.Services
         {
             if (entry == null || entry.registration == null || entry.registration.id == null)
                 return;
-            int isPaid = entry.payment_gateway_status?.ToLower() == "success" ? 1 : 0;
+            //int isPaid = entry.payment_gateway_status?.ToLower() == "success" ? 1 : 0;
+            int isPaid = 0;
+            if (entry.payment_info is null)
+            {
+                isPaid = 0;
+            }
+            else
+            {
+                isPaid = (entry.payment_info.status.ToLower() == "success" || entry?.payment_gateway_status == "success") ? 1 : 0;
+            }
             int campid = entry.registration.campus ?? 2;
             String cname = entry.course.name.Replace("&", "and").Trim();
             int shift =  shiftmap.IsMorningShift1(entry?.dept?.name,campid);//campid == 1 ? 1 :shiftmap.IsMorningShift(entry?.dept?.name);
@@ -413,7 +422,7 @@ namespace adapter.Services
                 DEPARTMENT_CODE = depcode,//DepartmentMapper.GetDepartmentCode(entry.course.name),//DepartmentMapper.GetDepartmentCode(entry.course.name), 
                 RECEIVE_ID = entry.recieve_id ?? 0,
                 PROGRAMME_GROUP_ID = PGRID,//application.registration.program_info?.id ?? 0,
-                STATUS = ConvertApplicationStatus(entry.registration.application_filled,pay_status,entry.interview_msg??"no"),//ConvertApplicationFilled(entry.registration.application_filled, entry.payment_info?.status ?? "Failed"),
+                STATUS = ConvertApplicationStatus(entry.registration.application_filled, pay_status, entry.interview_msg ?? "no"),//ConvertApplicationFilled(entry.registration.application_filled, entry.payment_info?.status ?? "Failed"),
                 SELECTION_TYPE = 0, // Placeholder, no mapping provided
                 IS_ACTIVE = 0, // Set active by default or based on business logic
                 IS_DELETED = 0,
@@ -423,7 +432,7 @@ namespace adapter.Services
                 PAYMENT_MODE = isPaid == 1
                     ? string.IsNullOrEmpty(entry.payment_gateway_id) ? 1 : 6 : (int?)null,
 
-                RAZORPAY_ID = entry.payment_gateway_id,
+                RAZORPAY_ID = isPaid == 1 ? entry.payment_gateway_id :null,
                 OLD_PROGRAMME_GROUP_ID = null, // Placeholder, no mapping provided
                 PRIORITY_ORDER = 0, // Placeholder, no mapping provided
                 CAMPUS_ID = entry.registration.campus,
@@ -503,7 +512,16 @@ namespace adapter.Services
             String? depcode = await _repository.GetProgrammeCode(cname, campid, shift, appltype);
             int? PGRID = await _repository.GetProgrammeId(cname, campid, shift, appltype);
             string pay_status = entry.payment_info is null ? (entry.payment_gateway_status is null ? "" : entry.payment_gateway_status) : entry.payment_info.status.ToLower();
-            int ispaid = entry.payment_info is null ? (entry.payment_gateway_status is null ? 0 : entry.payment_gateway_status?.ToLower() == "success" ? 1 : 0) : entry.payment_info.status.ToLower() == "success" ? 1 : 0;
+            int ispaid = 0;
+            if (entry.payment_info is null)
+            {
+                ispaid = 0;
+            }
+            else
+            {
+                ispaid = (entry.payment_info.status.ToLower() == "success" || entry?.payment_gateway_status == "success") ? 1 : 0;
+            }
+            //int ispaid = entry.payment_info is null ? (entry.payment_gateway_status is null ? 0 : entry.payment_gateway_status?.ToLower() == "success" ? 1 : 0) : entry.payment_info.status.ToLower() == "success" ? 1 : 0;
             var selectrow = new SelectionProcess
             {
                 Application_No=entry.application_id,
@@ -560,7 +578,7 @@ namespace adapter.Services
             }
             else
             {
-                amount_paid = entry.payment_info.status.ToLower() == "success" ? 1 : 0;
+                amount_paid = (entry.payment_info.status.ToLower() == "success" || entry?.payment_gateway_status=="success") ? 1 : 0;
             }
                 var order = new ForderInfo25
                 {
@@ -575,7 +593,7 @@ namespace adapter.Services
                     OFFER_ID = "", // No value provided
                     STATUS = entry.payment_info is null?entry.payment_gateway_status ?? "Not Paid":entry.payment_info.status,//"created",
                     ATTEMPTS = 0,
-                    CREATED_AT = entry.created_at ?? DateTime.Now,//DateTime.Parse(entry.created_at.ToString()), // Or DateTime.TryParse
+                    CREATED_AT = (entry.updated_at ?? entry.payment_info?.updated_at) ?? DateTime.Now,//entry.created_at ?? DateTime.Now,//DateTime.Parse(entry.created_at.ToString()), // Or DateTime.TryParse
                     UDF1 = entry.recieve_id.ToString(), // No value provided
                     UDF2 = "3",  //note 2 is for the semester admission fees
                     UDF3 = (entry.registration.campus == 2 ? 35 : 36).ToString(), // No value provided
@@ -620,16 +638,16 @@ namespace adapter.Services
                 //PHONE = "",
 
                 STATUS = null,
-                easepayid = entry.payment_info.easepayid,
+                easepayid = entry.payment_info is not null ? (entry.payment_gateway_id ?? entry.payment_info.easepayid) : entry.payment_gateway_id ?? "NA",//entry.payment_info.easepayid,
                 STR_RESPONSE = "",
 
                 //RESPONSE = "",
 
-                CREATED_AT = entry.payment_info?.updated_at ?? DateTime.Now,//DateTime.TryParse(entry.payment_info.updated_at, out var createdAt)
-                                                                            //? createdAt : DateTime.Now,
+                CREATED_AT =(entry.updated_at ?? entry.payment_info?.updated_at) ?? DateTime.Now,//entry.payment_info?.updated_at ?? DateTime.Now,//DateTime.TryParse(entry.payment_info.updated_at, out var createdAt)
+                                                                                                               //? createdAt : DateTime.Now,
 
-                SETTLEMENT_DATE = entry.payment_info?.updated_at ?? DateTime.Now,//DateTime.TryParse(entry.updated_at.ToString(), out var updatedAt)
-                                                                                 //? updatedAt : (DateTime?)null,
+                SETTLEMENT_DATE = (entry.updated_at ?? entry.payment_info?.updated_at) ?? DateTime.Now, //entry.payment_info?.updated_at ?? DateTime.Now,//DateTime.TryParse(entry.updated_at.ToString(), out var updatedAt)
+                                                                                                                     //? updatedAt : (DateTime?)null,
 
                 UDF1 = entry.recieve_id.ToString(),
                 UDF2 = "3",
@@ -660,7 +678,7 @@ namespace adapter.Services
 
         public async Task<int> InsertFeeTransactionAsync(ApplicationInfo entry)
         {
-            int isPaid = entry.payment_info.status?.ToLower() == "success" ? 1 : 0;
+            int isPaid = (entry.payment_info.status.ToLower() == "success" || entry?.payment_gateway_status == "success") ? 1 : 0;//entry.payment_info.status?.ToLower() == "success" ? 1 : 0;
             int transactionId = 0;
             int rcpt = await Areceipt.get_receipt(2,_repository);
             var transaction = new FeeTranx
@@ -840,9 +858,13 @@ namespace adapter.Services
                 FEE_STRUCTURE_ID = fstid
             };
             //if ( entry.payment_info is null ? (entry.payment_gateway_status is null?"":entry.payment_gateway_status) : entry.payment_info.status.ToLower())
-            if (entry.payment_info != null && entry.payment_info.status.ToLower() == "success")
+            //if (entry.payment_info != null && entry.payment_info.status.ToLower() == "success")
+            if (entry.payment_info != null)
             {
-                await _repository.InsertFeeStudentAccountDebitAsync(debit_account);
+                if (entry?.payment_info?.status.ToLower() == "success" || entry?.payment_gateway_status == "success")
+                {
+                    await _repository.InsertFeeStudentAccountDebitAsync(debit_account);
+                }
             }
 
         }
